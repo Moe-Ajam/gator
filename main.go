@@ -25,7 +25,6 @@ func main() {
 		log.Fatal("Could not establish database connection", err)
 	}
 	dbQueries := database.New(db)
-
 	apiCfg := apiConfig{
 		DB: dbQueries,
 	}
@@ -36,6 +35,8 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
+
+	mux.HandleFunc("POST /v1/users", apiCfg.handlerUsersCreate)
 
 	mux.HandleFunc("GET /v1/healthz", handlerReadiness)
 	mux.HandleFunc("GET /v1/err", handlerErr)
