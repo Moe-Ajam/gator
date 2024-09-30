@@ -1,22 +1,34 @@
 package main
 
 import (
+	"database/sql"
 	"github/Moe-Ajam/rss-blod-aggregator/internal/config"
+	"github/Moe-Ajam/rss-blod-aggregator/internal/database"
 	"log"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
 func main() {
 	conf, err := config.Read()
 	if err != nil {
-		log.Fatalf("Something went wrong while trying to read the config file: %v", err)
+		log.Fatalf("something went wrong while trying to read the config file: %v", err)
 	}
 
+	db, err := sql.Open("postgres", conf.DBURL)
+	if err != nil {
+		log.Fatalf("something went wrong while creating a db connection: %v", err)
+	}
+	dbQueries := database.New(db)
+
 	programState := state{
+		db:  dbQueries,
 		cfg: &conf,
 	}
 
@@ -25,6 +37,7 @@ func main() {
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
 	args := os.Args
 	if len(args) <= 2 {
