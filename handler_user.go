@@ -21,7 +21,7 @@ func handlerLogin(s *state, cmd command) error {
 	user, _ := s.db.GetUser(context.Background(), sql.NullString{
 		String: cmd.args[0],
 	})
-	fmt.Println("user:", user)
+	fmt.Println("name:", user.Name, "id:", user.ID, "updatedAt:", user.UpdatedAt)
 	if user == (database.User{}) {
 		fmt.Printf("user %s doesn't exist\n", cmd.args[0])
 		os.Exit(1)
