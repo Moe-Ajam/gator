@@ -38,9 +38,10 @@ func main() {
 
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
 
 	args := os.Args
-	if len(args) <= 2 {
+	if len(args) <= 1 {
 		log.Fatal("you need to have at least one argument inserted")
 	}
 	cmdName := args[1]
