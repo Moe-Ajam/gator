@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"github/Moe-Ajam/rss-blod-aggregator/internal/database"
@@ -18,9 +17,7 @@ func handlerLogin(s *state, cmd command) error {
 	}
 
 	// checking if the user exists in the database
-	user, _ := s.db.GetUser(context.Background(), sql.NullString{
-		String: cmd.args[0],
-	})
+	user, _ := s.db.GetUser(context.Background(), cmd.args[0])
 	fmt.Println("name:", user.Name, "id:", user.ID, "updatedAt:", user.UpdatedAt)
 	if user == (database.User{}) {
 		fmt.Printf("user %s doesn't exist\n", cmd.args[0])
@@ -42,9 +39,7 @@ func handlerRegister(s *state, cmd command) error {
 	}
 
 	// checking if the user already exists
-	user, _ := s.db.GetUser(context.Background(), sql.NullString{
-		String: cmd.args[0],
-	})
+	user, _ := s.db.GetUser(context.Background(), cmd.args[0])
 	if user != (database.User{}) {
 		fmt.Printf("user: %s already exists\n", cmd.args[0])
 		os.Exit(1)
@@ -55,18 +50,15 @@ func handlerRegister(s *state, cmd command) error {
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
-		Name: sql.NullString{
-			String: cmd.args[0],
-			Valid:  true,
-		},
+		Name:      cmd.args[0],
 	})
 	if err != nil {
 		// log.Fatalf("something went wrong while trying to register a user: %v", err)
 		return err
 	}
 
-	s.cfg.CurrentUserName = cmd.args[0]
-	fmt.Printf("user %s has been created\n", createdUser.Name.String)
+	s.cfg.SetUser(createdUser.Name)
+	fmt.Printf("user %s has been created\n", createdUser.Name)
 	fmt.Println(createdUser)
 
 	return nil
