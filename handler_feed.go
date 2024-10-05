@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github/Moe-Ajam/rss-blod-aggregator/internal/database"
 	"os"
@@ -14,7 +13,6 @@ import (
 func handlerAddFeed(s *state, cmd command) error {
 	if len(cmd.args) <= 1 {
 		os.Exit(1)
-		return errors.New("you have to pass a name and a url to run the addFeed command")
 	}
 
 	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
@@ -37,6 +35,24 @@ func handlerAddFeed(s *state, cmd command) error {
 		return err
 	}
 	printFeed(feed)
+	return nil
+}
+
+func handlerFeeds(s *state, cmd command) error {
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return err
+	}
+	for _, feed := range feeds {
+		printFeed(feed)
+		user, err := s.db.GetUserById(context.Background(), feed.UserID)
+		if err != nil {
+			return err
+		}
+		createdBy := user.Name
+		fmt.Printf("- Created By: %s\n", createdBy)
+		fmt.Println("============================")
+	}
 	return nil
 }
 
