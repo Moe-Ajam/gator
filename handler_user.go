@@ -63,3 +63,20 @@ func handlerRegister(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerUsers(s *state, cmd command) error {
+	users, err := s.db.GetUsers(context.Background())
+	if len(users) == 0 && err != nil {
+		fmt.Println("No users to be desplayed")
+		return err
+	}
+
+	for _, user := range users {
+		if s.cfg.CurrentUserName == user.Name {
+			fmt.Printf("* %s (current)\n", user.Name)
+		} else {
+			fmt.Printf("* %s\n", user.Name)
+		}
+	}
+	return nil
+}
