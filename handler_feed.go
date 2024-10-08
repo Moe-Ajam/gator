@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github/Moe-Ajam/rss-blod-aggregator/internal/database"
+	"log"
 	"os"
 	"time"
 
@@ -73,4 +74,25 @@ func printFeed(feed database.Feed) {
 	fmt.Printf("- Name: %v\n", feed.Name)
 	fmt.Printf("- Url: %v\n", feed.Url)
 	fmt.Printf("- User ID: %v\n", feed.UserID)
+}
+
+func scrapeFeeds(s *state) {
+	feed, err := s.db.GetNextFeedToFetch(context.Background())
+	if err != nil {
+		log.Fatalf("something went wrong while scraping feeds: %v\n", err)
+	}
+	err = s.db.MarkFeedFetched(context.Background(), feed.ID)
+	if err != nil {
+		log.Fatalf("something went wrong while scraping feeds: %v\n", err)
+	}
+	rssFeed, err := fetchFeed(context.Background(), feed.Url)
+	if err != nil {
+		log.Fatalf("something went wrong while scraping feeds: %v\n", err)
+	}
+
+	items := rssFeed.Channel.Item
+	fmt.Println("Feed Title:", rssFeed.Channel.Title)
+	for _, item := range items {
+		fmt.Println(item.Title)
+	}
 }
